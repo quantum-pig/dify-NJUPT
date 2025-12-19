@@ -23,6 +23,14 @@ const translation = {
   createSample: 'Based on this information, we\'ll create sample application for you',
   invitationCode: 'Invitation Code',
   invitationCodePlaceholder: 'Your invitation code',
+  // Sign up page (customized flow)
+  signUp: 'Sign Up',
+  signUpTip: 'Sign up with invitation code',
+  createAccount: 'Create account',
+  alreadyHaveAccount: 'Already have an account?',
+  signIn: 'Sign In',
+  workspaceName: 'Workspace Name (Username)',
+  workspaceNamePlaceholder: 'Enter workspace name',
   interfaceLanguage: 'Interface Language',
   timezone: 'Time zone',
   go: 'Go to Dify',
@@ -64,6 +72,8 @@ const translation = {
     passwordInvalid: 'Password must contain letters and numbers, and the length must be greater than 8',
     registrationNotAllowed: 'Account not found. Please contact the system admin to register.',
     invalidEmailOrPassword: 'Invalid email or password.',
+    invitationCodeEmpty: 'Invitation code is required',
+    workspaceNameEmpty: 'Workspace name is required',
   },
   license: {
     tip: 'Before starting Dify Community Edition, read the GitHub',

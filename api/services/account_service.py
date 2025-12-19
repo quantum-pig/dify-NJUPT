@@ -280,14 +280,14 @@ class AccountService:
 
     @staticmethod
     def create_account_and_tenant(
-        email: str, name: str, interface_language: str, password: str | None = None
+        email: str, name: str, interface_language: str, password: str | None = None, workspace_name: str | None = None
     ) -> Account:
         """create account"""
         account = AccountService.create_account(
             email=email, name=name, interface_language=interface_language, password=password
         )
 
-        TenantService.create_owner_tenant_if_not_exist(account=account)
+        TenantService.create_owner_tenant_if_not_exist(account=account, name=workspace_name)
 
         return account
 
@@ -1017,7 +1017,7 @@ class TenantService:
         """Create owner tenant if not exist"""
         if not FeatureService.get_system_features().is_allow_create_workspace and not is_setup:
             raise WorkSpaceNotAllowedCreateError()
-
+        
         workspaces = FeatureService.get_system_features().license.workspaces
         if not workspaces.is_available():
             raise WorkspacesLimitExceededError()

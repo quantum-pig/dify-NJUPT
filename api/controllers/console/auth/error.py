@@ -25,6 +25,12 @@ class InvalidTokenError(BaseHTTPException):
     code = 400
 
 
+class InvalidInvitationCodeError(BaseHTTPException):
+    error_code = "invalid_invitation_code"
+    description = "Invalid invitation code."
+    code = 400
+
+
 class PasswordResetRateLimitExceededError(BaseHTTPException):
     error_code = "password_reset_rate_limit_exceeded"
     description = "Too many password reset emails have been sent. Please try again in {minutes} minutes."

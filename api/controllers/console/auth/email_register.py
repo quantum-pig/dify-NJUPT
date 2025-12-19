@@ -11,6 +11,7 @@ from controllers.console.auth.error import (
     EmailCodeError,
     EmailRegisterLimitError,
     InvalidEmailError,
+    InvalidInvitationCodeError,
     InvalidTokenError,
     PasswordMismatchError,
 )
@@ -100,15 +101,16 @@ class EmailRegisterCheckApi(Resource):
 
 @console_ns.route("/email-register")
 class EmailRegisterResetApi(Resource):
-    @setup_required
     @email_password_login_enabled
     @email_register_enabled
     def post(self):
         parser = (
             reqparse.RequestParser()
-            .add_argument("token", type=str, required=True, nullable=False, location="json")
+            .add_argument("email", type=email, required=True, location="json")
             .add_argument("new_password", type=valid_password, required=True, nullable=False, location="json")
             .add_argument("password_confirm", type=valid_password, required=True, nullable=False, location="json")
+            .add_argument("invitation_code", type=str, required=True, nullable=False, location="json")
+            .add_argument("workspace_name", type=str, required=True, nullable=False, location="json")
         )
         args = parser.parse_args()
 
@@ -116,42 +118,36 @@ class EmailRegisterResetApi(Resource):
         if args["new_password"] != args["password_confirm"]:
             raise PasswordMismatchError()
 
-        # Validate token and get register data
-        register_data = AccountService.get_email_register_data(args["token"])
-        if not register_data:
-            raise InvalidTokenError()
-        # Must use token in reset phase
-        if register_data.get("phase", "") != "register":
-            raise InvalidTokenError()
+        # Validate invitation code
+        if args["invitation_code"] != "njupt2025":
+             raise InvalidInvitationCodeError()
 
-        # Revoke token to prevent reuse
-        AccountService.revoke_email_register_token(args["token"])
-
-        email = register_data.get("email", "")
+        email_addr = args["email"]
 
         with Session(db.engine) as session:
-            account = session.execute(select(Account).filter_by(email=email)).scalar_one_or_none()
+            account = session.execute(select(Account).filter_by(email=email_addr)).scalar_one_or_none()
 
             if account:
                 raise EmailAlreadyInUseError()
             else:
-                account = self._create_new_account(email, args["password_confirm"])
+                account = self._create_new_account(email_addr, args["new_password"], args["workspace_name"])
                 if not account:
                     raise AccountNotFoundError()
                 token_pair = AccountService.login(account=account, ip_address=extract_remote_ip(request))
-                AccountService.reset_login_error_rate_limit(email)
+                AccountService.reset_login_error_rate_limit(email_addr)
 
         return {"result": "success", "data": token_pair.model_dump()}
 
-    def _create_new_account(self, email, password) -> Account | None:
+    def _create_new_account(self, email, password, workspace_name) -> Account | None:
         # Create new account if allowed
         account = None
         try:
             account = AccountService.create_account_and_tenant(
                 email=email,
-                name=email,
+                name=workspace_name,
                 password=password,
                 interface_language=languages[0],
+                workspace_name=workspace_name
             )
         except AccountRegisterError:
             raise AccountInFreezeError()

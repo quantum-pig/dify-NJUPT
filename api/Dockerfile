@@ -23,7 +23,7 @@ RUN apt-get update \
 
 # Install Python dependencies
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-dev
+RUN uv sync --locked --no-dev --python /usr/local/bin/python
 
 # production stage
 FROM base AS production

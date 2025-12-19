@@ -171,13 +171,13 @@ const NormalForm = () => {
             </>
           }
 
-          {systemFeatures.is_allow_register && authType === 'password' && (
+          {authType === 'password' && (
             <div className='mb-3 text-[13px] font-medium leading-4 text-text-secondary'>
-              <span>{t('login.signup.noAccount')}</span>
+              <span>{t('login.signup.noAccount') || '还没有账户？'}</span>
               <Link
                 className='text-text-accent'
                 href='/signup'
-              >{t('login.signup.signUp')}</Link>
+              >{t('login.signup.signUp') || '立即注册'}</Link>
             </div>
           )}
           {allMethodsAreDisabled && <>

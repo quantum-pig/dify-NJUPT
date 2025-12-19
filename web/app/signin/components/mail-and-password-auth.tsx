@@ -157,5 +157,11 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
         className="w-full"
       >{t('login.signBtn')}</Button>
     </div>
+    <div className='flex justify-center'>
+        <span className='system-xs-regular text-text-tertiary'>{t('login.signup.noAccount') || "Don't have an account?"}</span>
+        <Link href='/signup' className='system-xs-medium ml-1 text-text-accent cursor-pointer'>
+            {t('login.signup.signUp') || 'Sign up'}
+        </Link>
+    </div>
   </form>
 }

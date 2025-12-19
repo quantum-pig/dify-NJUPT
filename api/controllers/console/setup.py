@@ -64,9 +64,13 @@ class SetupApi(Resource):
         if get_setup_status():
             raise AlreadySetupError()
 
+        # Allow setup even if tenants exist, as long as system is not initialized
+        # This handles the case where users registered before system initialization
         # is tenant created
         tenant_count = TenantService.get_tenant_count()
-        if tenant_count > 0:
+        # Only check tenant count if system is already initialized
+        # If system is not initialized, allow setup to proceed even with existing tenants
+        if tenant_count > 0 and get_setup_status():
             raise AlreadySetupError()
 
         if not get_init_validate_status():
