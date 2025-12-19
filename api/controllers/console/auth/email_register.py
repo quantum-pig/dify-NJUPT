@@ -42,10 +42,11 @@ class EmailRegisterValidityPayload(BaseModel):
 
 
 class EmailRegisterResetPayload(BaseModel):
-    token: str = Field(...)
+    token: str | None = Field(default=None, description="Registration token (for email verification flow)")
+    email: EmailStr | None = Field(default=None, description="Email address (for invitation code flow)")
     new_password: str = Field(...)
     password_confirm: str = Field(...)
-    invitation_code: str | None = Field(default=None, description="Invitation code")
+    invitation_code: str | None = Field(default=None, description="Invitation code (for direct registration)")
     workspace_name: str | None = Field(default=None, description="Workspace name")
 
     @field_validator("new_password", "password_confirm")
@@ -129,22 +130,34 @@ class EmailRegisterResetApi(Resource):
         if args.new_password != args.password_confirm:
             raise PasswordMismatchError()
 
-        # Validate invitation code if provided
-        if args.invitation_code and args.invitation_code != "njupt2025":
-            raise InvalidInvitationCodeError()
-
-        # Validate token and get register data
-        register_data = AccountService.get_email_register_data(args.token)
-        if not register_data:
-            raise InvalidTokenError()
-        # Must use token in reset phase
-        if register_data.get("phase", "") != "register":
-            raise InvalidTokenError()
-
-        # Revoke token to prevent reuse
-        AccountService.revoke_email_register_token(args.token)
-
-        email = register_data.get("email", "")
+        email = None
+        # Support two registration modes:
+        # 1. Token-based (official flow with email verification)
+        # 2. Invitation code-based (custom flow without email verification)
+        if args.token:
+            # Official token-based flow
+            register_data = AccountService.get_email_register_data(args.token)
+            if not register_data:
+                raise InvalidTokenError()
+            # Must use token in reset phase
+            if register_data.get("phase", "") != "register":
+                raise InvalidTokenError()
+            # Revoke token to prevent reuse
+            AccountService.revoke_email_register_token(args.token)
+            email = register_data.get("email", "")
+        elif args.invitation_code:
+            # Custom invitation code-based flow
+            if args.invitation_code != "njupt2025":
+                raise InvalidInvitationCodeError()
+            # Email should be provided directly in invitation code flow
+            # We'll need to add email to the payload model
+            from flask import request as flask_request
+            payload = flask_request.get_json() or {}
+            email = payload.get("email", "")
+            if not email:
+                raise InvalidEmailError()
+        else:
+            raise InvalidTokenError("Either token or invitation_code must be provided")
 
         with Session(db.engine) as session:
             account = session.execute(select(Account).filter_by(email=email)).scalar_one_or_none()
