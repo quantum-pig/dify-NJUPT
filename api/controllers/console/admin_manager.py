@@ -49,7 +49,16 @@ class AdminUserListApi(Resource):
     @setup_required
     @login_required
     @account_initialization_required
-    @api.marshal_with(api.model("AdminUserListResponse", {"users": fields.List(fields.Nested(api.model("AccountInfo", account_fields)))}))
+    @api.marshal_with(
+        api.model(
+            "AdminUserListResponse",
+            {
+                "users": fields.List(
+                    fields.Nested(api.model("AccountInfo", account_fields))
+                )
+            },
+        )
+    )
     def get(self):
         """Get all users (only initial admin can access)"""
         current_user, _ = current_account_with_tenant()

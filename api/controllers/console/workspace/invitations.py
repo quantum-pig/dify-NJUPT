@@ -81,7 +81,9 @@ class InvitationListApi(Resource):
                                         inviter_name = "系统管理员"
                                         role = join.role
                                         if owner_join:
-                                            inviter_account = db.session.query(Account).filter_by(id=owner_join.account_id).first()
+                                            inviter_account = db.session.query(Account).filter_by(
+                                                id=owner_join.account_id
+                                            ).first()
                                             if inviter_account:
                                                 inviter_name = inviter_account.name
                                         

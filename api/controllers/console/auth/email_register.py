@@ -150,12 +150,9 @@ class EmailRegisterResetApi(Resource):
             if args.invitation_code != "njupt2025":
                 raise InvalidInvitationCodeError()
             # Email should be provided directly in invitation code flow
-            # We'll need to add email to the payload model
-            from flask import request as flask_request
-            payload = flask_request.get_json() or {}
-            email = payload.get("email", "")
-            if not email:
-                raise InvalidEmailError()
+            if not args.email:
+                raise InvalidEmailError("Email is required for invitation code registration.")
+            email = args.email
         else:
             raise InvalidTokenError("Either token or invitation_code must be provided")
 
