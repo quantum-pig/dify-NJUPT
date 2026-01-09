@@ -1,7 +1,7 @@
 'use client'
 import type { MailRegisterResponse } from '@/service/use-common'
 import Cookies from 'js-cookie'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { trackEvent } from '@/app/components/base/amplitude'
@@ -28,7 +28,6 @@ const parseUtmInfo = () => {
 
 const ChangePasswordForm = () => {
   const { t } = useTranslation()
-  const router = useRouter()
   const searchParams = useSearchParams()
   const token = decodeURIComponent(searchParams.get('token') || '')
 
@@ -86,13 +85,15 @@ const ChangePasswordForm = () => {
           type: 'success',
           message: t('api.actionSuccess', { ns: 'common' }),
         })
-        router.replace('/apps')
+        // Use window.location.replace for immediate redirect without history entry
+        // This ensures the redirect happens immediately after the response is processed
+        window.location.replace('/apps')
       }
     }
     catch (error) {
       console.error(error)
     }
-  }, [password, token, valid, confirmPassword, register])
+  }, [password, token, valid, confirmPassword, register, t])
 
   return (
     <div className={

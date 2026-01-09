@@ -1,9 +1,10 @@
 import type { ResponseError } from '@/service/fetch'
-import { noop } from 'es-toolkit/function'
+// import { noop } from 'es-toolkit/function'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+// import { useQueryClient } from '@tanstack/react-query'
 import { trackEvent } from '@/app/components/base/amplitude'
 import Button from '@/app/components/base/button'
 import Input from '@/app/components/base/input'
@@ -11,8 +12,9 @@ import Toast from '@/app/components/base/toast'
 import { emailRegex } from '@/config'
 import { useLocale } from '@/context/i18n'
 import { login } from '@/service/common'
-import { setWebAppAccessToken } from '@/service/webapp-auth'
+// import { setWebAppAccessToken } from '@/service/webapp-auth'
 import { encryptPassword } from '@/utils/encryption'
+// import { commonQueryKeys } from '@/service/use-common'
 import { resolvePostLoginRedirect } from '../utils/post-login-redirect'
 
 type MailAndPasswordAuthProps = {
@@ -26,6 +28,7 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
   const locale = useLocale()
   const router = useRouter()
   const searchParams = useSearchParams()
+  // const queryClient = useQueryClient()
   const [showPassword, setShowPassword] = useState(false)
   const emailFromLink = decodeURIComponent(searchParams.get('email') || '')
   const [email, setEmail] = useState(emailFromLink)
@@ -66,21 +69,29 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
       })
       if (res.result === 'success') {
         // Track login success event
-        setWebAppAccessToken(res.data.access_token)
+        // Note: Tokens are now stored in cookies by the backend, no need to set access_token
         trackEvent('user_login_success', {
           method: 'email_password',
           is_invite: isInvite,
         })
+
+        // Invalidate login status query to force refresh
+        // queryClient.invalidateQueries({ queryKey: commonQueryKeys.isLogin })
 
         if (isInvite) {
           router.replace(`/signin/invite-settings?${searchParams.toString()}`)
         }
         else {
           const redirectUrl = resolvePostLoginRedirect(searchParams)
-          router.replace(redirectUrl || '/apps')
+          // Use window.location.replace for immediate redirect without history entry
+          // This ensures the redirect happens immediately after the response is processed
+          setTimeout(() => {
+            window.location.replace(redirectUrl || '/apps')
+          }, 200)
         }
       }
       else {
+        console.error('Login failed:', res)
         Toast.notify({
           type: 'error',
           message: res.data,
@@ -88,10 +99,18 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
       }
     }
     catch (error) {
+      console.error('Login error:', error)
       if ((error as ResponseError).code === 'authentication_failed') {
         Toast.notify({
           type: 'error',
           message: t('error.invalidEmailOrPassword', { ns: 'login' }),
+        })
+      }
+      else {
+        // Log other errors for debugging
+        Toast.notify({
+          type: 'error',
+          message: (error as any)?.message || t('error.invalidEmailOrPassword', { ns: 'login' }),
         })
       }
     }
@@ -101,7 +120,11 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
   }
 
   return (
-    <form onSubmit={noop}>
+    <form onSubmit={(e) => {
+      e.preventDefault()
+      handleEmailPasswordLogin()
+    }}
+    >
       <div className="mb-3">
         <label htmlFor="email" className="system-md-semibold my-2 text-text-secondary">
           {t('email', { ns: 'login' })}
@@ -137,10 +160,6 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
             id="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter')
-                handleEmailPasswordLogin()
-            }}
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
             placeholder={t('passwordPlaceholder', { ns: 'login' }) || ''}
@@ -162,7 +181,7 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
         <Button
           tabIndex={2}
           variant="primary"
-          onClick={handleEmailPasswordLogin}
+          type="submit"
           disabled={isLoading || !email || !password}
           className="w-full"
         >

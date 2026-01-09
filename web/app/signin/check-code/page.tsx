@@ -58,7 +58,9 @@ export default function CheckCode() {
         }
         else {
           const redirectUrl = resolvePostLoginRedirect(searchParams)
-          router.replace(redirectUrl || '/apps')
+          // Use window.location.replace for immediate redirect without history entry
+          // This ensures the redirect happens immediately after the response is processed
+          window.location.replace(redirectUrl || '/apps')
         }
       }
     }

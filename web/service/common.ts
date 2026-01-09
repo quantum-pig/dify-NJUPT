@@ -39,7 +39,7 @@ import { del, get, patch, post, put } from './base'
 
 type LoginSuccess = {
   result: 'success'
-  data: { access_token: string }
+  data?: { access_token?: string } // Optional since tokens are now in cookies
 }
 type LoginFail = {
   result: 'fail'
