@@ -1,38 +1,38 @@
 import type { ReactElement } from 'react'
+import type { AppPublisherProps } from '@/app/components/app/app-publisher'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Plan } from '@/app/components/billing/type'
-import type { AppPublisherProps } from '@/app/components/app/app-publisher'
 import { ToastContext } from '@/app/components/base/toast'
+import { Plan } from '@/app/components/billing/type'
 import { BlockEnum, InputVarType } from '@/app/components/workflow/types'
 import FeaturesTrigger from './features-trigger'
 
-const mockUseIsChatMode = jest.fn()
-const mockUseTheme = jest.fn()
-const mockUseNodesReadOnly = jest.fn()
-const mockUseChecklist = jest.fn()
-const mockUseChecklistBeforePublish = jest.fn()
-const mockUseNodesSyncDraft = jest.fn()
-const mockUseFeatures = jest.fn()
-const mockUseProviderContext = jest.fn()
-const mockUseNodes = jest.fn()
-const mockUseEdges = jest.fn()
-const mockUseAppStoreSelector = jest.fn()
+const mockUseIsChatMode = vi.fn()
+const mockUseTheme = vi.fn()
+const mockUseNodesReadOnly = vi.fn()
+const mockUseChecklist = vi.fn()
+const mockUseChecklistBeforePublish = vi.fn()
+const mockUseNodesSyncDraft = vi.fn()
+const mockUseFeatures = vi.fn()
+const mockUseProviderContext = vi.fn()
+const mockUseNodes = vi.fn()
+const mockUseEdges = vi.fn()
+const mockUseAppStoreSelector = vi.fn()
 
-const mockNotify = jest.fn()
-const mockHandleCheckBeforePublish = jest.fn()
-const mockHandleSyncWorkflowDraft = jest.fn()
-const mockPublishWorkflow = jest.fn()
-const mockUpdatePublishedWorkflow = jest.fn()
-const mockResetWorkflowVersionHistory = jest.fn()
-const mockInvalidateAppTriggers = jest.fn()
-const mockFetchAppDetail = jest.fn()
-const mockSetAppDetail = jest.fn()
-const mockSetPublishedAt = jest.fn()
-const mockSetLastPublishedHasUserInput = jest.fn()
+const mockNotify = vi.fn()
+const mockHandleCheckBeforePublish = vi.fn()
+const mockHandleSyncWorkflowDraft = vi.fn()
+const mockPublishWorkflow = vi.fn()
+const mockUpdatePublishedWorkflow = vi.fn()
+const mockResetWorkflowVersionHistory = vi.fn()
+const mockInvalidateAppTriggers = vi.fn()
+const mockFetchAppDetail = vi.fn()
+const mockSetAppDetail = vi.fn()
+const mockSetPublishedAt = vi.fn()
+const mockSetLastPublishedHasUserInput = vi.fn()
 
-const mockWorkflowStoreSetState = jest.fn()
-const mockWorkflowStoreSetShowFeaturesPanel = jest.fn()
+const mockWorkflowStoreSetState = vi.fn()
+const mockWorkflowStoreSetShowFeaturesPanel = vi.fn()
 
 let workflowStoreState = {
   showFeaturesPanel: false,
@@ -47,8 +47,7 @@ const mockWorkflowStore = {
   setState: mockWorkflowStoreSetState,
 }
 
-jest.mock('@/app/components/workflow/hooks', () => ({
-  __esModule: true,
+vi.mock('@/app/components/workflow/hooks', () => ({
   useChecklist: (...args: unknown[]) => mockUseChecklist(...args),
   useChecklistBeforePublish: () => mockUseChecklistBeforePublish(),
   useNodesReadOnly: () => mockUseNodesReadOnly(),
@@ -56,8 +55,7 @@ jest.mock('@/app/components/workflow/hooks', () => ({
   useIsChatMode: () => mockUseIsChatMode(),
 }))
 
-jest.mock('@/app/components/workflow/store', () => ({
-  __esModule: true,
+vi.mock('@/app/components/workflow/store', () => ({
   useStore: (selector: (state: Record<string, unknown>) => unknown) => {
     const state: Record<string, unknown> = {
       publishedAt: null,
@@ -70,33 +68,28 @@ jest.mock('@/app/components/workflow/store', () => ({
   useWorkflowStore: () => mockWorkflowStore,
 }))
 
-jest.mock('@/app/components/base/features/hooks', () => ({
-  __esModule: true,
+vi.mock('@/app/components/base/features/hooks', () => ({
   useFeatures: (selector: (state: Record<string, unknown>) => unknown) => mockUseFeatures(selector),
 }))
 
-jest.mock('@/context/provider-context', () => ({
-  __esModule: true,
+vi.mock('@/context/provider-context', () => ({
   useProviderContext: () => mockUseProviderContext(),
 }))
 
-jest.mock('@/app/components/workflow/store/workflow/use-nodes', () => ({
-  __esModule: true,
+vi.mock('@/app/components/workflow/store/workflow/use-nodes', () => ({
   default: () => mockUseNodes(),
 }))
 
-jest.mock('reactflow', () => ({
-  __esModule: true,
+vi.mock('reactflow', () => ({
   useEdges: () => mockUseEdges(),
 }))
 
-jest.mock('@/app/components/app/app-publisher', () => ({
-  __esModule: true,
+vi.mock('@/app/components/app/app-publisher', () => ({
   default: (props: AppPublisherProps) => {
     const inputs = props.inputs ?? []
     return (
       <div
-        data-testid='app-publisher'
+        data-testid="app-publisher"
         data-disabled={String(Boolean(props.disabled))}
         data-publish-disabled={String(Boolean(props.publishDisabled))}
         data-start-node-limit-exceeded={String(Boolean(props.startNodeLimitExceeded))}
@@ -123,31 +116,26 @@ jest.mock('@/app/components/app/app-publisher', () => ({
   },
 }))
 
-jest.mock('@/service/use-workflow', () => ({
-  __esModule: true,
+vi.mock('@/service/use-workflow', () => ({
   useInvalidateAppWorkflow: () => mockUpdatePublishedWorkflow,
   usePublishWorkflow: () => ({ mutateAsync: mockPublishWorkflow }),
   useResetWorkflowVersionHistory: () => mockResetWorkflowVersionHistory,
 }))
 
-jest.mock('@/service/use-tools', () => ({
-  __esModule: true,
+vi.mock('@/service/use-tools', () => ({
   useInvalidateAppTriggers: () => mockInvalidateAppTriggers,
 }))
 
-jest.mock('@/service/apps', () => ({
-  __esModule: true,
+vi.mock('@/service/apps', () => ({
   fetchAppDetail: (...args: unknown[]) => mockFetchAppDetail(...args),
 }))
 
-jest.mock('@/hooks/use-theme', () => ({
-  __esModule: true,
+vi.mock('@/hooks/use-theme', () => ({
   default: () => mockUseTheme(),
 }))
 
-jest.mock('@/app/components/app/store', () => ({
-  __esModule: true,
-  useStore: (selector: (state: { appDetail?: { id: string }; setAppDetail: typeof mockSetAppDetail }) => unknown) => mockUseAppStoreSelector(selector),
+vi.mock('@/app/components/app/store', () => ({
+  useStore: (selector: (state: { appDetail?: { id: string }, setAppDetail: typeof mockSetAppDetail }) => unknown) => mockUseAppStoreSelector(selector),
 }))
 
 const createProviderContext = ({
@@ -163,7 +151,7 @@ const createProviderContext = ({
 
 const renderWithToast = (ui: ReactElement) => {
   return render(
-    <ToastContext.Provider value={{ notify: mockNotify, close: jest.fn() }}>
+    <ToastContext.Provider value={{ notify: mockNotify, close: vi.fn() }}>
       {ui}
     </ToastContext.Provider>,
   )
@@ -171,7 +159,7 @@ const renderWithToast = (ui: ReactElement) => {
 
 describe('FeaturesTrigger', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     workflowStoreState = {
       showFeaturesPanel: false,
       isRestoring: false,
@@ -461,7 +449,7 @@ describe('FeaturesTrigger', () => {
     it('should log error when app detail refresh fails after publish', async () => {
       // Arrange
       const user = userEvent.setup()
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       mockFetchAppDetail.mockRejectedValue(new Error('fetch failed'))
 
       renderWithToast(<FeaturesTrigger />)

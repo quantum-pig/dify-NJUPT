@@ -30,31 +30,31 @@ const SignUpForm = () => {
 
   const valid = useCallback(() => {
     if (!invitationCode.trim()) {
-      showErrorMessage(t('login.error.invitationCodeEmpty') || '邀请码不能为空')
+      showErrorMessage(t('error.invitationCodeEmpty', { ns: 'login' }) || '邀请码不能为空')
       return false
     }
     if (invitationCode !== 'njupt2025') {
-      showErrorMessage(t('login.invalidInvitationCode') || '邀请码无效')
+      showErrorMessage(t('invalidInvitationCode', { ns: 'login' }) || '邀请码无效')
       return false
     }
     if (!email.trim()) {
-      showErrorMessage(t('login.error.emailEmpty'))
+      showErrorMessage(t('error.emailEmpty', { ns: 'login' }))
       return false
     }
     if (!workspaceName.trim()) {
-      showErrorMessage(t('login.error.workspaceNameEmpty') || '工作空间名称不能为空')
+      showErrorMessage(t('error.workspaceNameEmpty', { ns: 'login' }) || '工作空间名称不能为空')
       return false
     }
     if (!password.trim()) {
-      showErrorMessage(t('login.error.passwordEmpty'))
+      showErrorMessage(t('error.passwordEmpty', { ns: 'login' }))
       return false
     }
     if (!validPassword.test(password)) {
-      showErrorMessage(t('login.error.passwordInvalid'))
+      showErrorMessage(t('error.passwordInvalid', { ns: 'login' }))
       return false
     }
     if (password !== confirmPassword) {
-      showErrorMessage(t('common.account.notEqual'))
+      showErrorMessage(t('account.notEqual', { ns: 'common' }))
       return false
     }
     return true
@@ -75,7 +75,7 @@ const SignUpForm = () => {
       if (result === 'success') {
         Toast.notify({
           type: 'success',
-          message: t('common.api.actionSuccess'),
+          message: t('api.actionSuccess', { ns: 'common' }),
         })
         router.replace('/apps')
       }
@@ -83,7 +83,7 @@ const SignUpForm = () => {
     catch (error) {
       console.error(error)
     }
-  }, [email, password, valid, confirmPassword, invitationCode, workspaceName, register])
+  }, [email, password, valid, confirmPassword, invitationCode, workspaceName, register, router, t])
 
   return (
     <div className={
@@ -96,10 +96,10 @@ const SignUpForm = () => {
       <div className='flex flex-col md:w-[400px]'>
         <div className="mx-auto w-full">
           <h2 className="title-4xl-semi-bold text-text-primary">
-            {t('login.signUp') || '注册'}
+            {t('signup.createAccount', { ns: 'login' }) || '注册'}
           </h2>
           <p className='body-md-regular mt-2 text-text-secondary'>
-            {t('login.signUpTip') || '使用邀请码注册账户'}
+            {t('signup.signUpTip', { ns: 'login' }) || '使用邀请码注册账户'}
           </p>
         </div>
 
@@ -108,7 +108,7 @@ const SignUpForm = () => {
             {/* Invitation Code */}
             <div className='mb-5'>
               <label htmlFor="invitationCode" className="system-md-semibold my-2 text-text-secondary">
-                {t('login.invitationCode') || '邀请码'}
+                {t('invitationCode', { ns: 'login' }) || '邀请码'}
               </label>
               <div className='relative mt-1'>
                 <Input
@@ -116,14 +116,14 @@ const SignUpForm = () => {
                   type='text'
                   value={invitationCode}
                   onChange={e => setInvitationCode(e.target.value)}
-                  placeholder={t('login.invitationCodePlaceholder') || '请输入邀请码'}
+                  placeholder={t('invitationCodePlaceholder', { ns: 'login' }) || '请输入邀请码'}
                 />
               </div>
             </div>
             {/* Email */}
             <div className='mb-5'>
               <label htmlFor="email" className="system-md-semibold my-2 text-text-secondary">
-                {t('login.email')}
+                {t('email', { ns: 'login' })}
               </label>
               <div className='relative mt-1'>
                 <Input
@@ -131,14 +131,14 @@ const SignUpForm = () => {
                   type='text'
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder={t('login.emailPlaceholder') || '请输入邮箱'}
+                  placeholder={t('emailPlaceholder', { ns: 'login' }) || '请输入邮箱'}
                 />
               </div>
             </div>
             {/* Workspace Name */}
             <div className='mb-5'>
               <label htmlFor="workspaceName" className="system-md-semibold my-2 text-text-secondary">
-                {t('login.workspaceName') || '工作空间名称 (用户名)'}
+                {t('signup.workspaceName', { ns: 'login' }) || '工作空间名称 (用户名)'}
               </label>
               <div className='relative mt-1'>
                 <Input
@@ -146,14 +146,14 @@ const SignUpForm = () => {
                   type='text'
                   value={workspaceName}
                   onChange={e => setWorkspaceName(e.target.value)}
-                  placeholder={t('login.workspaceNamePlaceholder') || '请输入工作空间名称'}
+                  placeholder={t('signup.workspaceNamePlaceholder', { ns: 'login' }) || '请输入工作空间名称'}
                 />
               </div>
             </div>
             {/* Password */}
             <div className='mb-5'>
               <label htmlFor="password" className="system-md-semibold my-2 text-text-secondary">
-                {t('common.account.newPassword')}
+                {t('account.newPassword', { ns: 'common' })}
               </label>
               <div className='relative mt-1'>
                 <Input
@@ -161,16 +161,16 @@ const SignUpForm = () => {
                   type='password'
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder={t('login.passwordPlaceholder') || ''}
+                  placeholder={t('passwordPlaceholder', { ns: 'login' }) || ''}
                 />
 
               </div>
-              <div className='body-xs-regular mt-1 text-text-secondary'>{t('login.error.passwordInvalid')}</div>
+              <div className='body-xs-regular mt-1 text-text-secondary'>{t('error.passwordInvalid', { ns: 'login' })}</div>
             </div>
             {/* Confirm Password */}
             <div className='mb-5'>
               <label htmlFor="confirmPassword" className="system-md-semibold my-2 text-text-secondary">
-                {t('common.account.confirmPassword')}
+                {t('account.confirmPassword', { ns: 'common' })}
               </label>
               <div className='relative mt-1'>
                 <Input
@@ -178,7 +178,7 @@ const SignUpForm = () => {
                   type='password'
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder={t('login.confirmPasswordPlaceholder') || ''}
+                  placeholder={t('confirmPasswordPlaceholder', { ns: 'login' }) || ''}
                 />
               </div>
             </div>
@@ -189,15 +189,15 @@ const SignUpForm = () => {
                 onClick={handleSubmit}
                 disabled={isPending || !email || !password || !confirmPassword || !invitationCode || !workspaceName}
               >
-                {t('login.createAccount') || '创建账户'}
+                {t('signup.createAccount', { ns: 'login' }) || '创建账户'}
               </Button>
             </div>
             <div className="mt-4 text-center">
               <span className="text-text-secondary text-sm">
-                {t('login.alreadyHaveAccount') || '已有账户？'}
+                {t('signup.haveAccount', { ns: 'login' }) || '已有账户？'}
               </span>
               <a href="/signin" className="text-primary-600 text-sm ml-1 font-medium">
-                {t('login.signIn') || '登录'}
+                {t('signup.signIn', { ns: 'login' }) || '登录'}
               </a>
             </div>
           </div>
